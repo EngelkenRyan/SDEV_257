@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
+//Planets page component
 export default function Planets() {
   return (
     <View style={styles.container}>
@@ -9,6 +10,7 @@ export default function Planets() {
   );
 }
 
+//Styles for the Planets page
 const styles = StyleSheet.create({
   container: {
     flex: 1,

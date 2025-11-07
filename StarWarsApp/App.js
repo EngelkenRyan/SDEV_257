@@ -7,11 +7,13 @@ import Films from "../StarWarsApp/screens/Films";
 import Planets from "../StarWarsApp/screens/Planets";
 import Spaceships from "../StarWarsApp/screens/Spaceships";
 
+//IOS uses Bottom Tabs, Android uses Drawer Navigation
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
+    //If IOS run Bottom Tabs, if Android run Drawer Navigation
     <NavigationContainer>
       {Platform.OS === "ios" ? (
         <Tab.Navigator screenOptions={{ headerShown: false }}>

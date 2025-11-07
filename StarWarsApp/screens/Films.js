@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
+//Films page component
 export default function Films() {
   return (
     <View style={styles.container}>
@@ -9,6 +10,7 @@ export default function Films() {
   );
 }
 
+//Styles for the Films page
 const styles = StyleSheet.create({
   container: {
     flex: 1,

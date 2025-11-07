@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
+//Spaceships page component
 export default function Spaceships() {
   return (
     <View style={styles.container}>
@@ -9,6 +10,7 @@ export default function Spaceships() {
   );
 }
 
+//Styles for the Spaceships page
 const styles = StyleSheet.create({
   container: {
     flex: 1,
