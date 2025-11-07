@@ -1,4 +1,3 @@
-import React from "react";
 import { View, StatusBar } from "react-native";
 import styles from "./styles";
 import Row from "./Row";
@@ -12,34 +11,34 @@ export default function App() {
 
       <Row>
         <Column>
-          <Box>Box 1</Box>
-          <Box>Box 2</Box>
+          <Box text="Box 1" />
+          <Box text="Box 2" />
         </Column>
         <Column>
-          <Box>Box 3</Box>
-          <Box>Box 4</Box>
-        </Column>
-      </Row>
-
-      <Row>
-        <Column>
-          <Box>Box 5</Box>
-          <Box>Box 6</Box>
-        </Column>
-        <Column>
-          <Box>Box 7</Box>
-          <Box>Box 8</Box>
+          <Box text="Box 3" />
+          <Box text="Box 4" />
         </Column>
       </Row>
 
       <Row>
         <Column>
-          <Box>Box 9</Box>
-          <Box>Box 10</Box>
+          <Box text="Box 5" />
+          <Box text="Box 6" />
         </Column>
         <Column>
-          <Box>Box 11</Box>
-          <Box>Box 12</Box>
+          <Box text="Box 7" />
+          <Box text="Box 8" />
+        </Column>
+      </Row>
+
+      <Row>
+        <Column>
+          <Box text="Box 9" />
+          <Box text="Box 10" />
+        </Column>
+        <Column>
+          <Box text="Box 11" />
+          <Box text="Box 12" />
         </Column>
       </Row>
     </View>
