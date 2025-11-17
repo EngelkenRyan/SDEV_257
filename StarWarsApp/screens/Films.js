@@ -1,26 +1,60 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 
-//Films page component
 export default function Films() {
+  const [data, setData] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const fetchFilms = async () => {
+    try {
+      const response = await fetch("https://www.swapi.tech/api/films/");
+      const json = await response.json();
+      setData(json.results);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const refreshItems = async () => {
+    setIsRefreshing(true);
+    await fetchFilms();
+    setIsRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchFilms();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>This is the Films page</Text>
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.url}
+        renderItem={({ item }) => (
+          <Text style={styles.text}>
+            {item.title}
+          </Text>
+        )}
+        refreshing={isRefreshing}
+        onRefresh={refreshItems}
+      />
     </View>
   );
 }
 
-//Styles for the Films page
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
     justifyContent: "center",
-    alignItems: "center",
+    paddingTop: 40,
   },
   text: {
     color: "#fd0000ff",
     fontSize: 22,
     fontWeight: "bold",
+    padding: 12,
+    borderBottomColor: "#333",
+    borderBottomWidth: 1,
   },
 });

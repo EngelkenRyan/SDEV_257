@@ -1,11 +1,43 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 
 //Planets page component
 export default function Planets() {
+  const [data, setData] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  //Fetch planets data from SWAPI
+  const fetchPlanets = async () => {
+    try {
+      const response = await fetch("https://www.swapi.tech/api/planets/"); 
+      const json = await response.json();
+      setData(json.results);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const refreshItems = async () => {
+    setIsRefreshing(true);
+    await fetchPlanets();
+    setIsRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchPlanets();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>This is the Planets page</Text>
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.url}
+        renderItem={({ item }) => (
+          <Text style={styles.text}>{item.name}</Text>
+        )}
+        refreshing={isRefreshing}
+        onRefresh={refreshItems}
+      />
     </View>
   );
 }
