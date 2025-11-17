@@ -6,10 +6,12 @@ export default function Planets() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  //Fetch planets data from SWAPI
+  //Fetch planets from api
   const fetchPlanets = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/planets/"); 
+
+      // Storing response as json
       const json = await response.json();
       setData(json.results);
     } catch (error) {
@@ -17,6 +19,7 @@ export default function Planets() {
     }
   };
 
+  //Refresh planets
   const refreshItems = async () => {
     setIsRefreshing(true);
     await fetchPlanets();
@@ -27,6 +30,7 @@ export default function Planets() {
     fetchPlanets();
   }, []);
 
+  // Renders planets
   return (
     <View style={styles.container}>
       <FlatList

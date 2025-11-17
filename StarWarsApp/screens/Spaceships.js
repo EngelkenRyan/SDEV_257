@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 
+//Spaceships page component
 export default function Spaceships() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  //Fetch planets from api
   const fetchShips = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/starships/");
@@ -15,6 +17,7 @@ export default function Spaceships() {
     }
   };
 
+    //Refresh spaceships
   const refreshItems = async () => {
     setIsRefreshing(true);
     await fetchShips();
@@ -25,6 +28,7 @@ export default function Spaceships() {
     fetchShips();
   }, []);
 
+  // Renders Spaceships
   return (
     <View style={styles.container}>
       <FlatList
@@ -42,19 +46,17 @@ export default function Spaceships() {
   );
 }
 
+//Styles for the Spaceships page
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
     justifyContent: "center",
-    paddingTop: 40,
+    alignItems: "center",
   },
   text: {
     color: "#fd0000ff",
     fontSize: 22,
     fontWeight: "bold",
-    padding: 12,
-    borderBottomColor: "#333",
-    borderBottomWidth: 1,
   },
 });
