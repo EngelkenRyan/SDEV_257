@@ -80,7 +80,7 @@ export default function Films() {
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalText}>You entered: {searchText}</Text>
+            <Text style={styles.modalText}>{searchText}</Text>
             <Button title="Close" onPress={() => setModalVisible(false)} />
           </View>
         </View>
