@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Modal,
+  Button,
+  TextInput,
+} from "react-native";
 
 // Films page component
 export default function Films() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  //Search
+  const [searchText, setSearchText] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
 
   // Fetching Films from api
   const fetchFilms = async () => {
@@ -18,7 +30,7 @@ export default function Films() {
       // Storing response as json
       const json = await response.json();
       console.log(json);
-      setData(json.result); 
+      setData(json.result);
     } catch (error) {
       console.error(error);
     }
@@ -31,24 +43,48 @@ export default function Films() {
     setIsRefreshing(false);
   };
 
+  //calls fetchFilms
   useEffect(() => {
     fetchFilms();
   }, []);
 
+  // Handles search
+  const handleSearch = () => {
+    setModalVisible(true);
+  };
+
   // Renders Films
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter search term"
+        placeholderTextColor="#888"
+        value={searchText}
+        onChangeText={setSearchText}
+        onSubmitEditing={handleSearch}
+      />
+
+      <Button title="Submit" onPress={handleSearch} />
+
       <FlatList
         data={data}
         keyExtractor={(item) => item.uid}
         renderItem={({ item }) => (
-          <Text style={styles.text}>
-            {item.properties.title}
-          </Text>
+          <Text style={styles.text}>{item.properties.title}</Text>
         )}
         refreshing={isRefreshing}
         onRefresh={refreshItems}
       />
+
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalText}>You entered: {searchText}</Text>
+            <Button title="Close" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -58,12 +94,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   text: {
     color: "#fd0000ff",
     fontSize: 22,
     fontWeight: "bold",
+  },
+  input: {
+    backgroundColor: "#222",
+    color: "#fff",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 50,
+    marginBottom: 10,
+    width: "90%",
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+
+  modalBox: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+  },
+
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: "center",
   },
 });
