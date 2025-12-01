@@ -16,20 +16,27 @@ import Swipeable from "./Swipeable";
 import LazyImage from "./LazyImage";
 
 const screenWidth = Dimensions.get("window").width;
+const imageHeight = screenWidth * 0.55;
 
-// Planets page component
+{
+  /* Planets page component */
+}
 export default function Planets() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Search
+  {
+    /* Search */
+  }
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPlanet, setSelectedPlanet] = useState("");
 
   const [animateKey, setAnimateKey] = useState(0);
 
-  // Fetching planets from API
+  {
+    /* Fetch planets from api */
+  }
   const fetchPlanets = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/planets/");
@@ -41,14 +48,18 @@ export default function Planets() {
     }
   };
 
-  // Refresh planets
+  {
+    /* refresh planets */
+  }
   const refreshItems = async () => {
     setIsRefreshing(true);
     await fetchPlanets();
     setIsRefreshing(false);
   };
 
-  // Calls fetchPlanets
+  {
+    /* calling fetch planets */
+  }
   useEffect(() => {
     fetchPlanets();
   }, []);
@@ -57,29 +68,35 @@ export default function Planets() {
     setAnimateKey((prev) => prev + 1);
   }, [data]);
 
-  // Handles search
+  {
+    /* handles search */
+  }
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Handles swipe
+  {
+    /* handles swipe */
+  }
   const handleSwipe = (name) => {
     setSelectedPlanet(name);
     setModalVisible(true);
   };
 
-  // Renders planets using Swipeable
+  {
+    /* renders planets */
+  }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
       <StatusBar barStyle="light-content" />
 
       <ScrollView style={styles.container}>
-        // Image
+        {/* image */}
         <LazyImage
           source={require("../assets/starwarsgallaxy.jpeg")}
-          style={styles.headerImage}
+          style={[styles.headerImage, { height: imageHeight }]}
         />
-        // Search input
+        {/* search input */}
         <TextInput
           style={styles.input}
           placeholder="Enter search term"
@@ -89,7 +106,7 @@ export default function Planets() {
           onSubmitEditing={handleSearch}
         />
         <Button title="Submit" onPress={handleSearch} color="red" />
-        // List of planets
+        {/* list of planets */}
         {data.map((item) => (
           <Animated.View
             key={`${item.url}-${animateKey}`}
@@ -102,7 +119,7 @@ export default function Planets() {
             />
           </Animated.View>
         ))}
-        // Planet & Search Modal
+        {/* planet & search modal */}
         <Modal visible={modalVisible} transparent animationType="slide">
           <View style={styles.modalContainer}>
             <View style={styles.modalBox}>
@@ -118,7 +135,9 @@ export default function Planets() {
   );
 }
 
-// Styles
+{
+  /* styles */
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -129,7 +148,6 @@ const styles = StyleSheet.create({
 
   headerImage: {
     width: "100%",
-    height: 260,
     resizeMode: "cover",
     borderRadius: 10,
     marginBottom: 20,

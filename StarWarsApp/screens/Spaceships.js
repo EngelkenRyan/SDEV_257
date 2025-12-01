@@ -15,21 +15,29 @@ import Animated, { SlideInDown } from "react-native-reanimated";
 import Swipeable from "./Swipeable";
 import LazyImage from "./LazyImage";
 
-// Spaceships page component
+{
+  /* spaceship component */
+}
 export default function Spaceships() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Search
+  {
+    /* search */
+  }
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedShip, setSelectedShip] = useState("");
-  // Gets screen width for iamge size
+  {
+    /* Image sizing */
+  }
   const screenWidth = Dimensions.get("window").width;
   const imageWidth = screenWidth;
   const imageHeight = screenWidth * 0.55;
 
-  // Fetching starships from API
+  {
+    /* Featch starship from api */
+  }
   const fetchShips = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/starships/");
@@ -41,34 +49,44 @@ export default function Spaceships() {
     }
   };
 
-  // Refresh starships
+  {
+    /* Refresh starship */
+  }
   const refreshItems = async () => {
     setIsRefreshing(true);
     await fetchShips();
     setIsRefreshing(false);
   };
 
-  // Calls fetchShips
+  {
+    /* calls fetchShips */
+  }
   useEffect(() => {
     fetchShips();
   }, []);
 
-  // Handles search
+  {
+    /* handles search */
+  }
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Handles swipe
+  {
+    /* handles swipe */
+  }
   const handleSwipe = (name) => {
     setSelectedShip(name);
     setModalVisible(true);
   };
 
-  // Renders starships
+  {
+    /* Renders starships */
+  }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
       <ScrollView contentContainerStyle={styles.container}>
-        // Image
+        {/* image */}
         <LazyImage
           source={require("../assets/Death-Star-I-copy_36ad2500.jpeg")}
           style={{
@@ -81,7 +99,7 @@ export default function Spaceships() {
           }}
           resizeMode="cover"
         />
-        // Search
+        {/* search */}
         <TextInput
           style={styles.input}
           placeholder="Enter search term"
@@ -91,7 +109,7 @@ export default function Spaceships() {
           onSubmitEditing={handleSearch}
         />
         <Button title="Submit" onPress={handleSearch} color="red" />
-        // Spaceships list
+        {/* spaceship list */}
         {data.map((item) => (
           <Animated.View key={item.url} entering={SlideInDown}>
             <Swipeable
@@ -102,7 +120,7 @@ export default function Spaceships() {
           </Animated.View>
         ))}
       </ScrollView>
-      // Spaceship & Search Modal
+      {/* spaceship modal */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
@@ -115,7 +133,9 @@ export default function Spaceships() {
   );
 }
 
-// Styles
+{
+  /* styles */
+}
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#000",

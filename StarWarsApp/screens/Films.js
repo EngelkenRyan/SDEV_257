@@ -16,23 +16,31 @@ import Animated, { SlideInDown } from "react-native-reanimated";
 import { useFocusEffect } from "@react-navigation/native";
 import LazyImage from "./LazyImage";
 
-// Gets screen width for iamge size
+{
+  /* Image sizing */
+}
 const screenWidth = Dimensions.get("window").width;
-const imageHeight = screenWidth * 0.55; // auto height like your other screens
+const imageHeight = screenWidth * 0.55;
 
-// Films page component
+{
+  /* Films page component */
+}
 export default function Films() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Search
+  {
+    /* Search */
+  }
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFilm, setSelectedFilm] = useState("");
 
   const [animateKey, setAnimateKey] = useState(0);
 
-  // Fetching Films from API
+  {
+    /* Fetch films from api */
+  }
   const fetchFilms = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/films", {
@@ -45,48 +53,60 @@ export default function Films() {
     }
   };
 
-  // Refresh Films
+  {
+    /* Refresh films */
+  }
   const refreshItems = async () => {
     setIsRefreshing(true);
     await fetchFilms();
     setIsRefreshing(false);
   };
 
-  // Calls fetchFilms
+  {
+    /* Call fetch films */
+  }
   useEffect(() => {
     fetchFilms();
   }, []);
 
-  // Trigger animation
+  {
+    /* Animation */
+  }
   useFocusEffect(
     React.useCallback(() => {
       setAnimateKey((prev) => prev + 1);
     }, [])
   );
 
-  // Handles search
+  {
+    /* Handle Search */
+  }
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Handles swipe
+  {
+    /* Handle Swipe */
+  }
   const handleSwipe = (title) => {
     setSelectedFilm(title);
     setModalVisible(true);
   };
 
-  // Renders Films
+  {
+    /* Render films */
+  }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
       <StatusBar barStyle="light-content" />
 
       <ScrollView style={styles.container}>
-        // image
+        {/* Image */}
         <LazyImage
           source={require("../assets/starwarsfilms.jpg")}
           style={[styles.headerImage, { width: "100%", height: imageHeight }]}
         />
-        // Search
+        {/* Search */}
         <TextInput
           style={styles.input}
           placeholder="Enter search term"
@@ -95,9 +115,9 @@ export default function Films() {
           onChangeText={setSearchText}
           onSubmitEditing={handleSearch}
         />
-        // Search Button
+        {/* Search button */}
         <Button title="Submit" onPress={handleSearch} color="red" />
-        // Map through films
+        {/* Map through films */}
         {data.map((item) => (
           <Animated.View
             key={`${item.uid}-${animateKey}`}
@@ -110,7 +130,7 @@ export default function Films() {
             />
           </Animated.View>
         ))}
-        // Film & Search modal
+        {/* Film and search modal */}
         <Modal visible={modalVisible} transparent animationType="slide">
           <View style={styles.modalContainer}>
             <View style={styles.modalBox}>
@@ -124,7 +144,9 @@ export default function Films() {
   );
 }
 
-// Styles
+{
+  /* Styles */
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
