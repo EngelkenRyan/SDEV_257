@@ -1,52 +1,53 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Modal,
-  Button,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, Modal, Button, TextInput } from "react-native";
+import Swipeable from "./Swipeable"; 
 
-//Spaceships page component
+// Spaceships page component
 export default function Spaceships() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  //Search
+  // Search
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedShip, setSelectedShip] = useState("");
 
-  //Fetch planets from api
+  // Fetching starships from API
   const fetchShips = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/starships/");
       const json = await response.json();
+      console.log(json);
       setData(json.results);
     } catch (error) {
       console.error(error);
     }
   };
 
-  //Refresh spaceships
+  // Refresh starships
   const refreshItems = async () => {
     setIsRefreshing(true);
     await fetchShips();
     setIsRefreshing(false);
   };
 
-  //calls fetchShips
+  // Calls fetchShips 
   useEffect(() => {
     fetchShips();
   }, []);
 
-  // Handles search
+  // Handles search 
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Renders Spaceships
+  // Handles swipe 
+  const handleSwipe = (name) => {
+    setSelectedShip(name);
+    setModalVisible(true);
+  };
+
+  // Renders starships 
   return (
     <View style={styles.container}>
       <TextInput
@@ -60,18 +61,20 @@ export default function Spaceships() {
 
       <Button title="Submit" onPress={handleSearch} />
 
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.url}
-        renderItem={({ item }) => <Text style={styles.text}>{item.name}</Text>}
-        refreshing={isRefreshing}
-        onRefresh={refreshItems}
-      />
+      
+      {data.map((item) => (
+        <Swipeable
+          key={item.url}
+          name={item.name}
+          onSwipe={() => handleSwipe(item.name)}
+        />
+      ))}
 
+      {/* Modal spaceship or search */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalText}>{searchText}</Text>
+            <Text style={styles.modalText}>{selectedShip || searchText}</Text>
             <Button title="Close" onPress={() => setModalVisible(false)} />
           </View>
         </View>
@@ -80,18 +83,13 @@ export default function Spaceships() {
   );
 }
 
-//Styles for the Spaceships page
+// Styles 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
     paddingHorizontal: 20,
     paddingTop: 20,
-  },
-  text: {
-    color: "#fd0000ff",
-    fontSize: 22,
-    fontWeight: "bold",
   },
   input: {
     backgroundColor: "#222",
@@ -102,21 +100,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "90%",
   },
-
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.6)",
   },
-
   modalBox: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
     width: "80%",
   },
-
   modalText: {
     fontSize: 18,
     marginBottom: 20,

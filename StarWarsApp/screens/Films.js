@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Modal,
-  Button,
-  TextInput,
-} from "react-native";
-import Swipeable from "./Swipeable"; // Import your new Swipeable component
+import { View, Text, StyleSheet, Modal, Button, TextInput } from "react-native";
+import Swipeable from "./Swipeable";
 
 // Films page component
 export default function Films() {
@@ -45,23 +37,23 @@ export default function Films() {
     setIsRefreshing(false);
   };
 
-  // Calls fetchFilms on mount
+  // Calls fetchFilms
   useEffect(() => {
     fetchFilms();
   }, []);
 
-  // Handles search (currently just shows modal with search text)
+  // Handles search
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Handles swipe on a film item
+  // Handles swipe
   const handleSwipe = (title) => {
     setSelectedFilm(title);
     setModalVisible(true);
   };
 
-  // Renders Films using Swipeable
+  // Renders Films
   return (
     <View style={styles.container}>
       <TextInput
@@ -75,7 +67,6 @@ export default function Films() {
 
       <Button title="Submit" onPress={handleSearch} />
 
-      {/* Using Swipeable for each film */}
       {data.map((item) => (
         <Swipeable
           key={item.uid}
@@ -84,7 +75,7 @@ export default function Films() {
         />
       ))}
 
-      {/* Modal to show selected film or search term */}
+      {/* Modal for films and search */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
@@ -97,18 +88,13 @@ export default function Films() {
   );
 }
 
-// Styles for the Films page
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
     paddingHorizontal: 20,
     paddingTop: 20,
-  },
-  text: {
-    color: "#fd0000ff",
-    fontSize: 22,
-    fontWeight: "bold",
   },
   input: {
     backgroundColor: "#222",

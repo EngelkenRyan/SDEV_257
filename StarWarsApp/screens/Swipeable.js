@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 50,
     marginVertical: 5,
+    alignSelf: "center",
   },
   swipeItem: {
     width: 200,
