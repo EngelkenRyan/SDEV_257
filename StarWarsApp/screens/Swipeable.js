@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from "react-native";
 
-export default function Swipeable({ name, onSwipe }) {
+export default function Swipeable({ name, onSwipe, textStyle }) {
   function onScroll(e) {
     if (e.nativeEvent.contentOffset.x >= 200) {
       onSwipe();
@@ -27,7 +27,7 @@ export default function Swipeable({ name, onSwipe }) {
       <ScrollView {...scrollProps}>
         <TouchableOpacity>
           <View style={styles.swipeItem}>
-            <Text style={styles.swipeItemText}>{name}</Text>
+            <Text style={[styles.swipeItemText, textStyle]}>{name}</Text>
           </View>
         </TouchableOpacity>
         <View style={styles.swipeBlank} />

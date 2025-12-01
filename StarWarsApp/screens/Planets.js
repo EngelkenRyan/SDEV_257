@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Modal, Button, TextInput } from "react-native";
-import Swipeable from "./Swipeable"; 
+import Animated, { SlideInDown } from "react-native-reanimated";
+import Swipeable from "./Swipeable";
 
 // Planets page component
 export default function Planets() {
@@ -36,12 +37,12 @@ export default function Planets() {
     fetchPlanets();
   }, []);
 
-  // Handles search 
+  // Handles search
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Handles swipe 
+  // Handles swipe
   const handleSwipe = (name) => {
     setSelectedPlanet(name);
     setModalVisible(true);
@@ -58,16 +59,16 @@ export default function Planets() {
         onChangeText={setSearchText}
         onSubmitEditing={handleSearch}
       />
+      <Button title="Submit" onPress={handleSearch} color="red" />
 
-      <Button title="Submit" onPress={handleSearch} />
-
-      
       {data.map((item) => (
-        <Swipeable
-          key={item.url}
-          name={item.name}
-          onSwipe={() => handleSwipe(item.name)}
-        />
+        <Animated.View key={item.url} entering={SlideInDown}>
+          <Swipeable
+            name={item.name}
+            textStyle={{ color: "red" }}
+            onSwipe={() => handleSwipe(item.name)}
+          />
+        </Animated.View>
       ))}
 
       {/* Modal for planet or search */}
@@ -83,7 +84,7 @@ export default function Planets() {
   );
 }
 
-// Styles 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

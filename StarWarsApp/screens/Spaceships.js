@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Modal, Button, TextInput } from "react-native";
-import Swipeable from "./Swipeable"; 
+import Animated, { SlideInDown } from "react-native-reanimated";
+import Swipeable from "./Swipeable";
 
 // Spaceships page component
 export default function Spaceships() {
@@ -31,23 +32,23 @@ export default function Spaceships() {
     setIsRefreshing(false);
   };
 
-  // Calls fetchShips 
+  // Calls fetchShips
   useEffect(() => {
     fetchShips();
   }, []);
 
-  // Handles search 
+  // Handles search
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Handles swipe 
+  // Handles swipe
   const handleSwipe = (name) => {
     setSelectedShip(name);
     setModalVisible(true);
   };
 
-  // Renders starships 
+  // Renders starships with animation
   return (
     <View style={styles.container}>
       <TextInput
@@ -58,16 +59,16 @@ export default function Spaceships() {
         onChangeText={setSearchText}
         onSubmitEditing={handleSearch}
       />
+      <Button title="Submit" onPress={handleSearch} color="red" />
 
-      <Button title="Submit" onPress={handleSearch} />
-
-      
       {data.map((item) => (
-        <Swipeable
-          key={item.url}
-          name={item.name}
-          onSwipe={() => handleSwipe(item.name)}
-        />
+        <Animated.View key={item.url} entering={SlideInDown}>
+          <Swipeable
+            name={item.name}
+            textStyle={{ color: "red" }}
+            onSwipe={() => handleSwipe(item.name)}
+          />
+        </Animated.View>
       ))}
 
       {/* Modal spaceship or search */}
@@ -83,7 +84,7 @@ export default function Spaceships() {
   );
 }
 
-// Styles 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

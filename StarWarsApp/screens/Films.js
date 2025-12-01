@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Modal, Button, TextInput } from "react-native";
 import Swipeable from "./Swipeable";
+import Animated, { SlideInDown } from "react-native-reanimated";
+import { useFocusEffect } from "@react-navigation/native";
 
 // Films page component
 export default function Films() {
@@ -12,18 +14,16 @@ export default function Films() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFilm, setSelectedFilm] = useState("");
 
+  // Animation key for re-mounting Animated Views
+  const [animateKey, setAnimateKey] = useState(0);
+
   // Fetching Films from API
   const fetchFilms = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/films", {
-        headers: {
-          Accept: "application/json",
-        },
+        headers: { Accept: "application/json" },
       });
-
-      // Storing response as JSON
       const json = await response.json();
-      console.log(json);
       setData(json.result);
     } catch (error) {
       console.error(error);
@@ -37,10 +37,17 @@ export default function Films() {
     setIsRefreshing(false);
   };
 
-  // Calls fetchFilms
+  // Calls fetchFilms once on mount
   useEffect(() => {
     fetchFilms();
   }, []);
+
+  // Trigger animation key update on screen focus
+  useFocusEffect(
+    React.useCallback(() => {
+      setAnimateKey((prev) => prev + 1);
+    }, [])
+  );
 
   // Handles search
   const handleSearch = () => {
@@ -53,7 +60,7 @@ export default function Films() {
     setModalVisible(true);
   };
 
-  // Renders Films
+  // Renders Films wwith animation
   return (
     <View style={styles.container}>
       <TextInput
@@ -64,15 +71,16 @@ export default function Films() {
         onChangeText={setSearchText}
         onSubmitEditing={handleSearch}
       />
-
-      <Button title="Submit" onPress={handleSearch} />
+      <Button title="Submit" onPress={handleSearch} color="red" />
 
       {data.map((item) => (
-        <Swipeable
-          key={item.uid}
-          name={item.properties.title}
-          onSwipe={() => handleSwipe(item.properties.title)}
-        />
+        <Animated.View key={`${item.uid}-${animateKey}`} entering={SlideInDown}>
+          <Swipeable
+            name={item.properties.title}
+            textStyle={{ color: "red" }}
+            onSwipe={() => handleSwipe(item.properties.title)}
+          />
+        </Animated.View>
       ))}
 
       {/* Modal for films and search */}
