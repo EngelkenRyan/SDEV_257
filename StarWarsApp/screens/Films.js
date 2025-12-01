@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Modal, Button, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  Button,
+  TextInput,
+  SafeAreaView,
+  StatusBar,
+  ScrollView,
+  Dimensions,
+} from "react-native";
 import Swipeable from "./Swipeable";
 import Animated, { SlideInDown } from "react-native-reanimated";
 import { useFocusEffect } from "@react-navigation/native";
+import LazyImage from "./LazyImage";
+
+// Gets screen width for iamge size
+const screenWidth = Dimensions.get("window").width;
+const imageHeight = screenWidth * 0.55; // auto height like your other screens
 
 // Films page component
 export default function Films() {
@@ -14,7 +30,6 @@ export default function Films() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFilm, setSelectedFilm] = useState("");
 
-  // Animation key for re-mounting Animated Views
   const [animateKey, setAnimateKey] = useState(0);
 
   // Fetching Films from API
@@ -37,12 +52,12 @@ export default function Films() {
     setIsRefreshing(false);
   };
 
-  // Calls fetchFilms once on mount
+  // Calls fetchFilms
   useEffect(() => {
     fetchFilms();
   }, []);
 
-  // Trigger animation key update on screen focus
+  // Trigger animation
   useFocusEffect(
     React.useCallback(() => {
       setAnimateKey((prev) => prev + 1);
@@ -60,39 +75,52 @@ export default function Films() {
     setModalVisible(true);
   };
 
-  // Renders Films wwith animation
+  // Renders Films
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter search term"
-        placeholderTextColor="#888"
-        value={searchText}
-        onChangeText={setSearchText}
-        onSubmitEditing={handleSearch}
-      />
-      <Button title="Submit" onPress={handleSearch} color="red" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
+      <StatusBar barStyle="light-content" />
 
-      {data.map((item) => (
-        <Animated.View key={`${item.uid}-${animateKey}`} entering={SlideInDown}>
-          <Swipeable
-            name={item.properties.title}
-            textStyle={{ color: "red" }}
-            onSwipe={() => handleSwipe(item.properties.title)}
-          />
-        </Animated.View>
-      ))}
-
-      {/* Modal for films and search */}
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalText}>{selectedFilm || searchText}</Text>
-            <Button title="Close" onPress={() => setModalVisible(false)} />
+      <ScrollView style={styles.container}>
+        // image
+        <LazyImage
+          source={require("../assets/starwarsfilms.jpg")}
+          style={[styles.headerImage, { width: "100%", height: imageHeight }]}
+        />
+        // Search
+        <TextInput
+          style={styles.input}
+          placeholder="Enter search term"
+          placeholderTextColor="#888"
+          value={searchText}
+          onChangeText={setSearchText}
+          onSubmitEditing={handleSearch}
+        />
+        // Search Button
+        <Button title="Submit" onPress={handleSearch} color="red" />
+        // Map through films
+        {data.map((item) => (
+          <Animated.View
+            key={`${item.uid}-${animateKey}`}
+            entering={SlideInDown}
+          >
+            <Swipeable
+              name={item.properties.title}
+              textStyle={{ color: "red" }}
+              onSwipe={() => handleSwipe(item.properties.title)}
+            />
+          </Animated.View>
+        ))}
+        // Film & Search modal
+        <Modal visible={modalVisible} transparent animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalText}>{selectedFilm || searchText}</Text>
+              <Button title="Close" onPress={() => setModalVisible(false)} />
+            </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -104,27 +132,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
+
+  headerImage: {
+    marginBottom: 20,
+    resizeMode: "cover",
+    borderRadius: 10,
+  },
+
   input: {
     backgroundColor: "#222",
     color: "#fff",
     padding: 10,
     borderRadius: 8,
-    marginTop: 50,
     marginBottom: 10,
-    width: "90%",
+    width: "100%",
   },
+
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.6)",
   },
+
   modalBox: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
     width: "80%",
   },
+
   modalText: {
     fontSize: 18,
     marginBottom: 20,
