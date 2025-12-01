@@ -8,17 +8,19 @@ import {
   Button,
   TextInput,
 } from "react-native";
+import Swipeable from "./Swipeable"; // Import your new Swipeable component
 
 // Films page component
 export default function Films() {
   const [data, setData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  //Search
+  // Search
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedFilm, setSelectedFilm] = useState("");
 
-  // Fetching Films from api
+  // Fetching Films from API
   const fetchFilms = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/films", {
@@ -27,7 +29,7 @@ export default function Films() {
         },
       });
 
-      // Storing response as json
+      // Storing response as JSON
       const json = await response.json();
       console.log(json);
       setData(json.result);
@@ -43,17 +45,23 @@ export default function Films() {
     setIsRefreshing(false);
   };
 
-  //calls fetchFilms
+  // Calls fetchFilms on mount
   useEffect(() => {
     fetchFilms();
   }, []);
 
-  // Handles search
+  // Handles search (currently just shows modal with search text)
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  // Renders Films
+  // Handles swipe on a film item
+  const handleSwipe = (title) => {
+    setSelectedFilm(title);
+    setModalVisible(true);
+  };
+
+  // Renders Films using Swipeable
   return (
     <View style={styles.container}>
       <TextInput
@@ -67,20 +75,20 @@ export default function Films() {
 
       <Button title="Submit" onPress={handleSearch} />
 
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.uid}
-        renderItem={({ item }) => (
-          <Text style={styles.text}>{item.properties.title}</Text>
-        )}
-        refreshing={isRefreshing}
-        onRefresh={refreshItems}
-      />
+      {/* Using Swipeable for each film */}
+      {data.map((item) => (
+        <Swipeable
+          key={item.uid}
+          name={item.properties.title}
+          onSwipe={() => handleSwipe(item.properties.title)}
+        />
+      ))}
 
+      {/* Modal to show selected film or search term */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalText}>{searchText}</Text>
+            <Text style={styles.modalText}>{selectedFilm || searchText}</Text>
             <Button title="Close" onPress={() => setModalVisible(false)} />
           </View>
         </View>
@@ -111,21 +119,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "90%",
   },
-
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.6)",
   },
-
   modalBox: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
     width: "80%",
   },
-
   modalText: {
     fontSize: 18,
     marginBottom: 20,
