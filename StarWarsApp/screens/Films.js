@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import {
+  SafeAreaView,
+  ScrollView,
   View,
   Text,
-  StyleSheet,
-  Modal,
-  Button,
   TextInput,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
+  Button,
   Dimensions,
+  Modal,
+  StyleSheet,
+  StatusBar,
 } from "react-native";
 import Swipeable from "./Swipeable";
 import Animated, { SlideInDown } from "react-native-reanimated";
-import { useFocusEffect } from "@react-navigation/native";
 import LazyImage from "./LazyImage";
+import useNetworkStatus from "./NetworkConnect";
 
 {
   /* Image sizing */
@@ -26,20 +26,17 @@ const imageHeight = screenWidth * 0.55;
   /* Films page component */
 }
 export default function Films() {
-  const [data, setData] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isConnected = useNetworkStatus(); 
 
-  {
-    /* Search */
-  }
+
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFilm, setSelectedFilm] = useState("");
-
   const [animateKey, setAnimateKey] = useState(0);
 
   {
-    /* Fetch films from api */
+    /* Fetch films */
   }
   const fetchFilms = async () => {
     try {
@@ -63,20 +60,20 @@ export default function Films() {
   };
 
   {
-    /* Call fetch films */
+    /* Call fetchFilms if online */
   }
   useEffect(() => {
-    fetchFilms();
-  }, []);
+    if (isConnected) {
+      fetchFilms();
+    }
+  }, [isConnected]);
 
   {
     /* Animation */
   }
-  useFocusEffect(
-    React.useCallback(() => {
-      setAnimateKey((prev) => prev + 1);
-    }, [])
-  );
+  useEffect(() => {
+    setAnimateKey((prev) => prev + 1);
+  }, [data]);
 
   {
     /* Handle Search */
@@ -99,47 +96,56 @@ export default function Films() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
       <StatusBar barStyle="light-content" />
-
-      <ScrollView style={styles.container}>
-        {/* Image */}
-        <LazyImage
-          source={require("../assets/starwarsfilms.jpg")}
-          style={[styles.headerImage, { width: "100%", height: imageHeight }]}
-        />
-        {/* Search */}
-        <TextInput
-          style={styles.input}
-          placeholder="Enter search term"
-          placeholderTextColor="#888"
-          value={searchText}
-          onChangeText={setSearchText}
-          onSubmitEditing={handleSearch}
-        />
-        {/* Search button */}
-        <Button title="Submit" onPress={handleSearch} color="red" />
-        {/* Map through films */}
-        {data.map((item) => (
-          <Animated.View
-            key={`${item.uid}-${animateKey}`}
-            entering={SlideInDown}
-          >
-            <Swipeable
-              name={item.properties.title}
-              textStyle={{ color: "red" }}
-              onSwipe={() => handleSwipe(item.properties.title)}
-            />
-          </Animated.View>
-        ))}
-        {/* Film and search modal */}
-        <Modal visible={modalVisible} transparent animationType="slide">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalBox}>
-              <Text style={styles.modalText}>{selectedFilm || searchText}</Text>
-              <Button title="Close" onPress={() => setModalVisible(false)} />
+      {!isConnected ? (
+        <View style={styles.offlineContainer}>
+          <Text style={styles.offlineText}>
+            No internet connection. Please try again.
+          </Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.container}>
+          {/* Image */}
+          <LazyImage
+            source={require("../assets/starwarsfilms.jpg")}
+            style={[styles.headerImage, { width: "100%", height: imageHeight }]}
+          />
+          {/* Search */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter search term"
+            placeholderTextColor="#888"
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={handleSearch}
+          />
+          {/* Search button */}
+          <Button title="Submit" onPress={handleSearch} color="red" />
+          {/* Map films */}
+          {data.map((item) => (
+            <Animated.View
+              key={`${item.uid}-${animateKey}`}
+              entering={SlideInDown}
+            >
+              <Swipeable
+                name={item.properties.title}
+                textStyle={{ color: "red" }}
+                onSwipe={() => handleSwipe(item.properties.title)}
+              />
+            </Animated.View>
+          ))}
+          {/* Film and search modal */}
+          <Modal visible={modalVisible} transparent animationType="slide">
+            <View style={styles.modalContainer}>
+              <View style={styles.modalBox}>
+                <Text style={styles.modalText}>
+                  {selectedFilm || searchText}
+                </Text>
+                <Button title="Close" onPress={() => setModalVisible(false)} />
+              </View>
             </View>
-          </View>
-        </Modal>
-      </ScrollView>
+          </Modal>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -154,13 +160,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
-
-  headerImage: {
-    marginBottom: 20,
-    resizeMode: "cover",
-    borderRadius: 10,
-  },
-
+  headerImage: { marginBottom: 20, resizeMode: "cover", borderRadius: 10 },
   input: {
     backgroundColor: "#222",
     color: "#fff",
@@ -169,24 +169,29 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "100%",
   },
-
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.6)",
   },
-
   modalBox: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
     width: "80%",
   },
-
-  modalText: {
+  modalText: { fontSize: 18, marginBottom: 20, textAlign: "center" },
+  offlineContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
+  offlineText: {
+    color: "red",
     fontSize: 18,
-    marginBottom: 20,
     textAlign: "center",
+    paddingHorizontal: 20,
   },
 });

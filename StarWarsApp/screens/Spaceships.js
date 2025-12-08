@@ -1,48 +1,42 @@
 import React, { useEffect, useState } from "react";
 import {
+  SafeAreaView,
+  ScrollView,
   View,
   Text,
-  StyleSheet,
-  Modal,
-  Button,
   TextInput,
-  SafeAreaView,
-  Image,
+  Button,
+  Modal,
+  StyleSheet,
   Dimensions,
-  ScrollView,
 } from "react-native";
 import Animated, { SlideInDown } from "react-native-reanimated";
 import Swipeable from "./Swipeable";
 import LazyImage from "./LazyImage";
+import useNetworkStatus from "./NetworkConnect";
+
+const screenWidth = Dimensions.get("window").width;
+const imageWidth = screenWidth;
+const imageHeight = screenWidth * 0.55;
 
 {
-  /* spaceship component */
+  /* Spaceships page component */
 }
 export default function Spaceships() {
-  const [data, setData] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isConnected = useNetworkStatus(); 
 
-  {
-    /* search */
-  }
+  const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedShip, setSelectedShip] = useState("");
-  {
-    /* Image sizing */
-  }
-  const screenWidth = Dimensions.get("window").width;
-  const imageWidth = screenWidth;
-  const imageHeight = screenWidth * 0.55;
 
   {
-    /* Featch starship from api */
+    /* Fetch starships */
   }
   const fetchShips = async () => {
     try {
       const response = await fetch("https://www.swapi.tech/api/starships/");
       const json = await response.json();
-      console.log(json);
       setData(json.results);
     } catch (error) {
       console.error(error);
@@ -50,30 +44,23 @@ export default function Spaceships() {
   };
 
   {
-    /* Refresh starship */
-  }
-  const refreshItems = async () => {
-    setIsRefreshing(true);
-    await fetchShips();
-    setIsRefreshing(false);
-  };
-
-  {
-    /* calls fetchShips */
+    /* Call fetchShips if online */
   }
   useEffect(() => {
-    fetchShips();
-  }, []);
+    if (isConnected) {
+      fetchShips();
+    }
+  }, [isConnected]);
 
   {
-    /* handles search */
+    /* Handle Search */
   }
   const handleSearch = () => {
     setModalVisible(true);
   };
 
   {
-    /* handles swipe */
+    /* Handle Swipe */
   }
   const handleSwipe = (name) => {
     setSelectedShip(name);
@@ -81,60 +68,70 @@ export default function Spaceships() {
   };
 
   {
-    /* Renders starships */
+    /* Render starships */
   }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* image */}
-        <LazyImage
-          source={require("../assets/Death-Star-I-copy_36ad2500.jpeg")}
-          style={{
-            width: imageWidth,
-            height: imageHeight,
-            borderRadius: 12,
-            alignSelf: "center",
-            marginTop: 10,
-            marginBottom: 20,
-          }}
-          resizeMode="cover"
-        />
-        {/* search */}
-        <TextInput
-          style={styles.input}
-          placeholder="Enter search term"
-          placeholderTextColor="#888"
-          value={searchText}
-          onChangeText={setSearchText}
-          onSubmitEditing={handleSearch}
-        />
-        <Button title="Submit" onPress={handleSearch} color="red" />
-        {/* spaceship list */}
-        {data.map((item) => (
-          <Animated.View key={item.url} entering={SlideInDown}>
-            <Swipeable
-              name={item.name}
-              textStyle={{ color: "red" }}
-              onSwipe={() => handleSwipe(item.name)}
-            />
-          </Animated.View>
-        ))}
-      </ScrollView>
-      {/* spaceship modal */}
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalText}>{selectedShip || searchText}</Text>
-            <Button title="Close" onPress={() => setModalVisible(false)} />
-          </View>
+      {!isConnected ? (
+        <View style={styles.offlineContainer}>
+          <Text style={styles.offlineText}>
+            No internet connection. Please try again.
+          </Text>
         </View>
-      </Modal>
+      ) : (
+        <ScrollView contentContainerStyle={styles.container}>
+          {/* Image */}
+          <LazyImage
+            source={require("../assets/Death-Star-I-copy_36ad2500.jpeg")}
+            style={{
+              width: imageWidth,
+              height: imageHeight,
+              borderRadius: 12,
+              alignSelf: "center",
+              marginTop: 10,
+              marginBottom: 20,
+            }}
+            resizeMode="cover"
+          />
+          {/* Search */}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter search term"
+            placeholderTextColor="#888"
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={handleSearch}
+          />
+          <Button title="Submit" onPress={handleSearch} color="red" />
+          {/* Spaceship list */}
+          {data.map((item) => (
+            <Animated.View key={item.url} entering={SlideInDown}>
+              <Swipeable
+                name={item.name}
+                textStyle={{ color: "red" }}
+                onSwipe={() => handleSwipe(item.name)}
+              />
+            </Animated.View>
+          ))}
+          {/* Spaceship modal */}
+          <Modal visible={modalVisible} transparent animationType="slide">
+            <View style={styles.modalContainer}>
+              <View style={styles.modalBox}>
+                <Text style={styles.modalText}>
+                  {selectedShip || searchText}
+                </Text>
+                <Button title="Close" onPress={() => setModalVisible(false)} />
+              </View>
+            </View>
+          </Modal>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
 
 {
-  /* styles */
+  /* Styles */
 }
 const styles = StyleSheet.create({
   container: {
@@ -166,5 +163,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 20,
     textAlign: "center",
+  },
+  offlineContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000",
+  },
+  offlineText: {
+    color: "red",
+    fontSize: 18,
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
 });
