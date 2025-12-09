@@ -23,7 +23,7 @@ const imageHeight = screenWidth * 0.55;
   /* Spaceships page component */
 }
 export default function Spaceships() {
-  const isConnected = useNetworkStatus(); 
+  const isConnected = useNetworkStatus();
 
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");

@@ -26,8 +26,7 @@ const imageHeight = screenWidth * 0.55;
   /* Films page component */
 }
 export default function Films() {
-  const isConnected = useNetworkStatus(); 
-
+  const isConnected = useNetworkStatus();
 
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState("");

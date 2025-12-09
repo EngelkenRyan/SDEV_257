@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import {
-  SafeAreaView,
-  ScrollView,
   View,
   Text,
-  TextInput,
-  Button,
-  Dimensions,
-  Modal,
   StyleSheet,
+  Modal,
+  Button,
+  TextInput,
+  SafeAreaView,
   StatusBar,
+  ScrollView,
+  Dimensions,
 } from "react-native";
 import Animated, { SlideInDown } from "react-native-reanimated";
 import Swipeable from "./Swipeable";
 import LazyImage from "./LazyImage";
-import useNetworkStatus from "./NetworkConnect";
+import NetInfo from "@react-native-community/netinfo";
 
 const screenWidth = Dimensions.get("window").width;
 const imageHeight = screenWidth * 0.55;
@@ -22,14 +22,14 @@ const imageHeight = screenWidth * 0.55;
 {
   /* Planets page component */
 }
-export default function Planets() {
-  const isConnected = useNetworkStatus();
-
+export default function Planets({ navigation }) {
   const [data, setData] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPlanet, setSelectedPlanet] = useState("");
   const [animateKey, setAnimateKey] = useState(0);
+  const [isConnected, setIsConnected] = useState(true);
 
   {
     /* Fetch planets */
@@ -38,6 +38,7 @@ export default function Planets() {
     try {
       const response = await fetch("https://www.swapi.tech/api/planets/");
       const json = await response.json();
+      console.log(json);
       setData(json.results);
     } catch (error) {
       console.error(error);
@@ -45,42 +46,47 @@ export default function Planets() {
   };
 
   {
-    /* Call fetchPlanets if online */
+    /* Refresh */
   }
-  useEffect(() => {
-    if (isConnected) {
-      fetchPlanets();
-    }
-  }, [isConnected]);
+  const refreshItems = async () => {
+    setIsRefreshing(true);
+    await fetchPlanets();
+    setIsRefreshing(false);
+  };
 
   {
-    /* Animation */
+    /* Detect internet*/
   }
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setIsConnected(state.isConnected);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  {
+    /* Fetchplanets on mount */
+  }
+  useEffect(() => {
+    fetchPlanets();
+  }, []);
+
   useEffect(() => {
     setAnimateKey((prev) => prev + 1);
   }, [data]);
 
-  {
-    /* Handle Search */
-  }
   const handleSearch = () => {
     setModalVisible(true);
   };
 
-  {
-    /* Handle Swipe */
-  }
-  const handleSwipe = (name) => {
-    setSelectedPlanet(name);
-    setModalVisible(true);
+  const handleSwipe = (url) => {
+    navigation.navigate("PlanetDetail", { url });
   };
 
-  {
-    /* Render planets */
-  }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
       <StatusBar barStyle="light-content" />
+
       {!isConnected ? (
         <View style={styles.offlineContainer}>
           <Text style={styles.offlineText}>
@@ -88,13 +94,16 @@ export default function Planets() {
           </Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.container}>
-          {/* Image */}
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
+        >
+          {/* header image */}
           <LazyImage
             source={require("../assets/starwarsgallaxy.jpeg")}
             style={[styles.headerImage, { height: imageHeight }]}
           />
-          {/* Search input */}
+          {/* search input */}
           <TextInput
             style={styles.input}
             placeholder="Enter search term"
@@ -104,7 +113,7 @@ export default function Planets() {
             onSubmitEditing={handleSearch}
           />
           <Button title="Submit" onPress={handleSearch} color="red" />
-          {/* List of planets */}
+          {/* list of planets */}
           {data.map((item) => (
             <Animated.View
               key={`${item.url}-${animateKey}`}
@@ -113,11 +122,11 @@ export default function Planets() {
               <Swipeable
                 name={item.name}
                 textStyle={{ color: "red" }}
-                onSwipe={() => handleSwipe(item.name)}
+                onSwipe={() => handleSwipe(item.url)}
               />
             </Animated.View>
           ))}
-          {/* Planet & search modal */}
+          {/* search modal */}
           <Modal visible={modalVisible} transparent animationType="slide">
             <View style={styles.modalContainer}>
               <View style={styles.modalBox}>
@@ -134,9 +143,6 @@ export default function Planets() {
   );
 }
 
-{
-  /* Styles */
-}
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#000",
@@ -178,7 +184,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000",
   },
   offlineText: {
     color: "red",
