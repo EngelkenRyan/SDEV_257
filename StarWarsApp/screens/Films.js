@@ -50,16 +50,7 @@ export default function Films() {
   };
 
   {
-    /* Refresh films */
-  }
-  const refreshItems = async () => {
-    setIsRefreshing(true);
-    await fetchFilms();
-    setIsRefreshing(false);
-  };
-
-  {
-    /* Call fetchFilms if online */
+    /* Call fetchFilms if connected */
   }
   useEffect(() => {
     if (isConnected) {
@@ -73,6 +64,11 @@ export default function Films() {
   useEffect(() => {
     setAnimateKey((prev) => prev + 1);
   }, [data]);
+
+  const filteredData = data.filter((item) => {
+    const title = item?.properties?.title || "";
+    return title.toLowerCase().includes(searchText.toLowerCase());
+  });
 
   {
     /* Handle Search */
@@ -108,6 +104,7 @@ export default function Films() {
             source={require("../assets/starwarsfilms.jpg")}
             style={[styles.headerImage, { width: "100%", height: imageHeight }]}
           />
+
           {/* Search */}
           <TextInput
             style={styles.input}
@@ -117,21 +114,29 @@ export default function Films() {
             onChangeText={setSearchText}
             onSubmitEditing={handleSearch}
           />
+
           {/* Search button */}
           <Button title="Submit" onPress={handleSearch} color="red" />
-          {/* Map films */}
-          {data.map((item) => (
-            <Animated.View
-              key={`${item.uid}-${animateKey}`}
-              entering={SlideInDown}
-            >
-              <Swipeable
-                name={item.properties.title}
-                textStyle={{ color: "red" }}
-                onSwipe={() => handleSwipe(item.properties.title)}
-              />
-            </Animated.View>
-          ))}
+
+          {/* Films list */}
+          {filteredData.map((item) => {
+            const title = item?.properties?.title;
+            if (!title) return null;
+
+            return (
+              <Animated.View
+                key={`${item.uid}-${animateKey}`}
+                entering={SlideInDown}
+              >
+                <Swipeable
+                  name={title}
+                  textStyle={{ color: "red" }}
+                  onSwipe={() => handleSwipe(title)}
+                />
+              </Animated.View>
+            );
+          })}
+
           {/* Film and search modal */}
           <Modal visible={modalVisible} transparent animationType="slide">
             <View style={styles.modalContainer}>

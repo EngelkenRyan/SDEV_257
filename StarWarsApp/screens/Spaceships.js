@@ -26,9 +26,11 @@ export default function Spaceships() {
   const isConnected = useNetworkStatus();
 
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedShip, setSelectedShip] = useState("");
+  const [animateKey, setAnimateKey] = useState(0);
 
   {
     /* Fetch starships */
@@ -38,6 +40,7 @@ export default function Spaceships() {
       const response = await fetch("https://www.swapi.tech/api/starships/");
       const json = await response.json();
       setData(json.results);
+      setFilteredData(json.results);
     } catch (error) {
       console.error(error);
     }
@@ -51,6 +54,21 @@ export default function Spaceships() {
       fetchShips();
     }
   }, [isConnected]);
+
+  useEffect(() => {
+    setAnimateKey((prev) => prev + 1);
+  }, [filteredData]);
+
+  useEffect(() => {
+    if (searchText === "") {
+      setFilteredData(data);
+    } else {
+      const filtered = data.filter((item) =>
+        item.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+      setFilteredData(filtered);
+    }
+  }, [searchText, data]);
 
   {
     /* Handle Search */
@@ -79,7 +97,13 @@ export default function Spaceships() {
           </Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+          contentContainerStyle={{
+            ...styles.container,
+            flexGrow: 1,
+            paddingBottom: 100,
+          }}
+        >
           {/* Image */}
           <LazyImage
             source={require("../assets/Death-Star-I-copy_36ad2500.jpeg")}
@@ -104,8 +128,11 @@ export default function Spaceships() {
           />
           <Button title="Submit" onPress={handleSearch} color="red" />
           {/* Spaceship list */}
-          {data.map((item) => (
-            <Animated.View key={item.url} entering={SlideInDown}>
+          {filteredData.map((item) => (
+            <Animated.View
+              key={`${item.url}-${animateKey}`}
+              entering={SlideInDown}
+            >
               <Swipeable
                 name={item.name}
                 textStyle={{ color: "red" }}
@@ -137,7 +164,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#000",
     paddingHorizontal: 20,
-    paddingBottom: 40,
   },
   input: {
     backgroundColor: "#222",

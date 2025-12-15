@@ -24,6 +24,7 @@ const imageHeight = screenWidth * 0.55;
 }
 export default function Planets({ navigation }) {
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,8 +39,8 @@ export default function Planets({ navigation }) {
     try {
       const response = await fetch("https://www.swapi.tech/api/planets/");
       const json = await response.json();
-      console.log(json);
       setData(json.results);
+      setFilteredData(json.results);
     } catch (error) {
       console.error(error);
     }
@@ -55,7 +56,7 @@ export default function Planets({ navigation }) {
   };
 
   {
-    /* Detect internet*/
+    /* Detect connection */
   }
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
@@ -65,7 +66,7 @@ export default function Planets({ navigation }) {
   }, []);
 
   {
-    /* Fetchplanets on mount */
+    /* Fetchplanets */
   }
   useEffect(() => {
     fetchPlanets();
@@ -73,12 +74,26 @@ export default function Planets({ navigation }) {
 
   useEffect(() => {
     setAnimateKey((prev) => prev + 1);
-  }, [data]);
+  }, [filteredData]);
 
-  const handleSearch = () => {
-    setModalVisible(true);
+  {
+    /* Handle Search */
+  }
+  const handleSearch = (text) => {
+    setSearchText(text);
+    if (text === "") {
+      setFilteredData(data);
+    } else {
+      const results = data.filter((item) =>
+        item.name.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredData(results);
+    }
   };
 
+  {
+    /* Handle Swipe */
+  }
   const handleSwipe = (url) => {
     navigation.navigate("PlanetDetail", { url });
   };
@@ -109,12 +124,15 @@ export default function Planets({ navigation }) {
             placeholder="Enter search term"
             placeholderTextColor="#888"
             value={searchText}
-            onChangeText={setSearchText}
-            onSubmitEditing={handleSearch}
+            onChangeText={handleSearch}
           />
-          <Button title="Submit" onPress={handleSearch} color="red" />
+          <Button
+            title="Submit"
+            onPress={() => handleSearch(searchText)}
+            color="red"
+          />
           {/* list of planets */}
-          {data.map((item) => (
+          {filteredData.map((item) => (
             <Animated.View
               key={`${item.url}-${animateKey}`}
               entering={SlideInDown}
@@ -143,6 +161,9 @@ export default function Planets({ navigation }) {
   );
 }
 
+{
+  /* Styles */
+}
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#000",
